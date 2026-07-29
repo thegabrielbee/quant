@@ -137,6 +137,22 @@ Regra principal:
 Nao crie funcao redundante quando ela for apenas um wrapper de outra funcao simples e nao composta.
 ```
 
+Regra obrigatoria de revisao no codigo:
+
+```text
+Se uma funcao do codigo existir apenas para chamar outra funcao simples, essa funcao nao deve existir.
+```
+
+Isso vale para:
+
+- starter em Python;
+- starter em C++;
+- solucao de referencia;
+- exemplos dentro do README;
+- qualquer codigo gerado junto com o exercicio.
+
+Quando encontrar esse caso, remova a funcao wrapper e use a chamada direta no fluxo principal.
+
 Um wrapper e redundante quando:
 
 - so chama uma funcao simples ja existente;
@@ -180,100 +196,203 @@ Se a funcao apenas renomeia uma chamada simples, nao crie a funcao.
 Se a funcao combina passos, valida dados ou representa uma unidade conceitual importante, ela pode existir.
 ```
 
+## Regras obrigatorias de testes
+
+Todo exercicio com codigo precisa vir com testes para validar as funcoes implementadas.
+
+Os testes nao podem validar apenas o dataset principal do README. Eles precisam validar tambem o funcionamento matematico das funcoes.
+
+Regra principal:
+
+```text
+Teste dado de referencia e teste propriedades matematicas.
+```
+
+O conjunto minimo de testes deve cobrir:
+
+- resultado esperado para os dados de partida do README;
+- pelo menos um caso pequeno calculavel de cabeca;
+- propriedades matematicas da funcao;
+- caso de borda simples, quando fizer sentido;
+- consistencia entre operacoes relacionadas.
+
+Exemplos de propriedades matematicas:
+
+- `dot(u, v) == dot(v, u)`;
+- `dot(a * u, v) == a * dot(u, v)`;
+- `matvec(I, v) == v`;
+- `transpose(transpose(A)) == A`;
+- matriz de covariancia deve ser simetrica;
+- variancia de portfolio nao deve ser negativa quando a matriz de covariancia for valida;
+- volatilidade deve ser `sqrt(variancia)`;
+- anualizacao deve multiplicar por `sqrt(periods_per_year)`.
+
+Evite testes fracos como:
+
+```text
+rode o exemplo principal e compare so o print final.
+```
+
+Prefira testes que chamam as funcoes diretamente:
+
+```text
+test_dot_commutativity
+test_dot_linearity
+test_transpose_twice_returns_original
+test_covariance_matrix_is_symmetric
+test_portfolio_variance_matches_manual_calculation
+```
+
+Os testes devem existir para Python e C++ quando o exercicio tiver as duas linguagens.
+
+Padrao recomendado:
+
+```text
+python/tests/test_main.py
+cpp/tests.cpp
+```
+
+Se o exercicio for muito pequeno, os testes de C++ podem ficar em `cpp/main_test.cpp`, mas ainda precisam ser separados do fluxo principal de execucao.
+
 ## Estrutura recomendada do README
 
-### 1. Titulo
+Use esta ordem como padrao unico para novos READMEs de exercicio.
+
+Nao misture este formato com templates antigos.
+
+### 1. Titulo do que o MD ira fazer
+
+```text
+# [Titulo do que o md ira fazer]
+```
+
+Logo abaixo do titulo, escreva o objetivo final em uma frase direta:
+
+```text
+Objetivo final: [o que deve ser calculado, produzido ou concluido].
+```
+
+### 2. Qual tipo de problema o objetivo resolve
 
 Use o formato:
 
 ```text
-# Item - Nome concreto do exercicio
+## Qual tipo de problema [objetivo] resolve
 ```
 
-Exemplo:
+Explique o problema real que aquele exercicio resolve em quant.
+
+Inclua uma exemplificacao basica dentro do texto, nao separada demais da explicacao.
+
+### 3. Glossario
+
+Use:
 
 ```text
-# Vetores - Retorno, risco e similaridade como operacoes vetoriais
+## glossario
 ```
 
-### 2. Contexto
+Cada termo precisa ter uma explicacao curta e pratica.
 
-Explique o assunto em linguagem simples, assumindo que a pessoa ainda nao sabe fazer.
+### 4. Dados de partida
 
-Inclua:
+Use:
 
-- onde o topico aparece no roadmap;
-- por que ele importa para quant;
-- qual intuicao o exercicio quer construir;
-- qual problema pratico ele ajuda a resolver.
+```text
+## dados de partida
+```
 
-### 3. Pergunta do exercicio
+Forneca dados pequenos, fechados e hardcoded.
 
-Escreva uma pergunta concreta, de preferencia ligada a uma situacao real.
+### 5. Dados de resultado
 
-Exemplos:
+Use:
 
-- A estrategia ganhou dinheiro por alpha proprio ou so porque andou junto com o mercado?
-- A matriz de covariancia e valida para usar em otimizacao?
-- O primeiro componente principal parece um fator de mercado?
-- O backtest esta usando informacao do futuro?
+```text
+## dados de resultado
+```
 
-### 4. Traducao para linguagem quant
+Mostre os valores finais esperados para conferir a implementacao.
 
-Crie uma ponte entre o conceito matematico e o uso financeiro/computacional.
+### 6. Tipagem das funcoes py e c++
 
-Inclua um glossario curto com termos como:
+Use:
 
-- retorno;
-- excesso de retorno;
-- beta;
-- alpha;
-- residual;
-- volatilidade;
-- covariancia;
-- fator de risco;
-- drawdown;
-- leakage;
-- out-of-sample.
+```text
+## tipagem das funcoes py e c++
+```
 
-Cada termo deve ter uma explicacao de uma ou duas linhas.
+Liste somente assinaturas/tipagens, sem entregar implementacao pronta.
 
-### 5. Dados de partida
+### 7. Referencias + termos para pesquisar
 
-Forneca dados pequenos e fechados para a pessoa nao comecar do vazio.
+Use:
 
-Regras:
+```text
+## Referencias + termos para pesquisar
+```
+
+Inclua termos em portugues e ingles, junto com referencias confiaveis.
+
+### 8. Como rodar
+
+Use:
+
+```text
+## Como rodar
+```
+
+Inclua comandos concretos para rodar Python, C++ e os testes das duas linguagens.
+
+Os comandos de teste sao obrigatorios. O README precisa deixar claro como validar:
+
+- execucao normal do exercicio;
+- testes das funcoes Python;
+- testes das funcoes C++;
+- quais propriedades matematicas os testes cobrem.
+
+### 9. Como saber se voce entendeu
+
+Use exatamente:
+
+```text
+## **Como saber se voce entendeu**
+```
+
+Inclua perguntas conceituais curtas.
+
+### 10. Steps
+
+Depois das secoes principais, crie os steps do exercicio.
+
+Cada step principal deve seguir:
+
+```text
+### step 1
+descricao enxuta do topico
+matematica em alto nivel do topico
+
+#### step 1.1
+matematica em alto nivel do topico + relacao com o codigo
+```
+
+Regra:
+
+- o step principal explica o que o passo faz;
+- o step principal mostra a matematica em alto nivel;
+- os substeps conectam a matematica com as funcoes que devem ser implementadas;
+- os nomes das funcoes precisam aparecer nos substeps, nao escondidos no final.
+
+### Regras gerais dos dados
 
 - use vetores/matrizes pequenas;
 - deixe os dados hardcoded no README;
 - explique a unidade dos numeros;
 - inclua pelo menos um caso que tenha interpretacao clara.
 
-Exemplo:
+### Regras gerais das formulas
 
-```text
-strategy = [0.012, -0.004, 0.006]
-market   = [0.010, -0.006, 0.004]
-risk_free_daily = 0.0002
-```
-
-### 6. Objetivo final
-
-Liste exatamente o que deve ser calculado ou produzido.
-
-Exemplo:
-
-1. calcular excesso de retorno;
-2. calcular beta;
-3. calcular componente explicada pelo mercado;
-4. calcular residual;
-5. concluir se parece alpha ou beta.
-
-### 7. Formulas
-
-Inclua as formulas necessarias antes do codigo.
-
-Cada formula deve ter:
+Cada formula ou bloco matematico deve ter:
 
 - nome;
 - para que serve aquele passo no calculo final;
@@ -284,137 +403,11 @@ Cada formula deve ter:
 
 Antes de mostrar a formula, explique em uma ou duas frases o papel daquele calculo. A pessoa precisa entender por que esta fazendo aquele passo antes de implementar.
 
-Exemplo:
-
-```text
-Funcao no codigo:
-projection_beta(strategy_excess, market_excess)
-```
-
-Formula:
-
-```text
-beta = dot(strategy_excess, market_excess) / dot(market_excess, market_excess)
-```
-
-Interpretacao: mede a exposicao da estrategia ao mercado.
-
 Regra importante: a relacao entre explicacao e codigo precisa ser direta. Se o texto mostra um exemplo numerico, diga de qual funcao aquele exemplo saiu.
 
-Exemplo:
+### Regras gerais das referencias
 
-```text
-Esse exemplo sai da funcao `scale_vector`, recebendo `beta` e `market_excess`.
-```
-
-### 8. O que implementar em Python
-
-Liste funcoes especificas, nao comandos vagos.
-
-Bom:
-
-```python
-def dot(u: list[float], v: list[float]) -> float:
-    ...
-```
-
-Ruim:
-
-```text
-implemente uma analise em Python
-```
-
-O roteiro deve dizer:
-
-1. quais dados criar;
-2. quais funcoes implementar;
-3. quais calculos fazer;
-4. o que imprimir;
-5. como interpretar a saida.
-
-### 9. O que implementar em C++
-
-Faca o mesmo para C++, mencionando as estruturas e bibliotecas esperadas.
-
-Exemplo:
-
-```cpp
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <vector>
-```
-
-Inclua assinaturas sugeridas, mas nao entregue o corpo da funcao no starter. A ideia e deixar a pessoa treinar C++ escrevendo a implementacao.
-
-```cpp
-double dot(const std::vector<double>& u, const std::vector<double>& v);
-double norm_l2(const std::vector<double>& u);
-```
-
-No arquivo `cpp/main.cpp`, prefira este padrao:
-
-```cpp
-double dot(const std::vector<double>& u, const std::vector<double>& v);
-
-// Escreva a implementacao abaixo.
-```
-
-Evite este padrao em starters de exercicio:
-
-```cpp
-double dot(const std::vector<double>& u, const std::vector<double>& v) {
-    return /* solucao pronta */;
-}
-```
-
-### 10. Resultado de referencia
-
-Sempre que possivel, inclua valores aproximados para conferir a implementacao.
-
-Exemplo:
-
-```text
-beta              = 0.971204
-cosine_similarity = 0.975899
-norm_residual     = 0.004433
-```
-
-Isso evita que a pessoa implemente tudo e fique sem saber se esta certo.
-
-### 11. Como saber se entendeu
-
-Inclua perguntas conceituais curtas.
-
-Exemplo:
-
-1. O que significa residual pequeno?
-2. Por que beta perto de 1 indica exposicao ao mercado?
-3. Qual erro aconteceria se eu esquecesse de subtrair a taxa livre de risco?
-
-### 12. Termos para pesquisar
-
-Inclua termos em portugues e ingles.
-
-Portugues:
-
-- produto interno algebra linear;
-- projecao de vetor;
-- beta de mercado;
-- risco sistematico;
-- excesso de retorno.
-
-Ingles:
-
-- dot product linear algebra;
-- vector projection;
-- market beta CAPM;
-- systematic risk;
-- excess return.
-
-### 13. Referencias
-
-Use referencias confiaveis e diretamente relacionadas.
+Use referencias confiaveis e diretamente relacionadas ao exercicio.
 
 Prioridade:
 
@@ -424,27 +417,6 @@ Prioridade:
 4. artigos tecnicos reconhecidos.
 
 Evite jogar links genericos demais. A referencia precisa ajudar naquele exercicio.
-
-### 14. Como rodar
-
-Inclua comandos concretos.
-
-```powershell
-python .\python\main.py
-g++ -std=c++20 -O2 -Wall -Wextra .\cpp\main.cpp -o .\cpp\main.exe
-.\cpp\main.exe
-```
-
-### 15. Entregavel
-
-Diga exatamente o que preencher em `notes.md`.
-
-Exemplo:
-
-```text
-A estrategia parece alpha proprio ou apenas exposicao ao mercado?
-Use beta, cosine similarity e norm_residual para justificar.
-```
 
 ## Checklist de qualidade
 
@@ -460,7 +432,12 @@ Antes de considerar o exercicio pronto, confira:
 - cada formula/exemplo aponta para a funcao correspondente no codigo;
 - os passos de Python e C++ tem funcoes especificas;
 - as funcoes sugeridas nao sao wrappers redundantes de chamadas simples ja existentes;
+- nenhuma funcao do codigo existe apenas para chamar outra funcao simples;
 - os starters mostram assinaturas/declaracoes de funcoes, mas nao entregam a implementacao;
+- existem testes para Python quando houver codigo Python;
+- existem testes para C++ quando houver codigo C++;
+- os testes chamam funcoes diretamente, nao apenas comparam o print final;
+- os testes cobrem propriedades matematicas, nao apenas os dados de input do README;
 - existem resultados de referencia;
 - existem perguntas para testar entendimento;
 - existem termos de busca em PT e EN;
@@ -480,6 +457,9 @@ Evite frases como:
 - explicar uma formula sem dizer qual funcao do codigo implementa aquela formula.
 - comecar um topico direto pela formula sem explicar para que aquele passo serve no calculo final.
 - criar funcao que apenas chama outra funcao simples, sem validacao, composicao ou ganho real de clareza.
+- manter no codigo uma funcao wrapper que so repassa para outra funcao simples.
+- entregar codigo sem testes.
+- testar apenas o exemplo principal do README sem validar propriedades matematicas das funcoes.
 
 Troque por instrucoes fechadas:
 
@@ -489,230 +469,295 @@ Troque por instrucoes fechadas:
 - quais valores esperar;
 - qual conclusao escrever.
 
-## Exemplo completo do padrao
+## Exemplo unico de referencia
 
-Use este exemplo como referencia de nivel de detalhe. Repare que cada topico comeca explicando para que o passo serve antes de mostrar formula ou codigo.
+Este e o unico exemplo-base para novos READMEs de exercicio. Use esta ordem, estes nomes de secoes e este nivel de detalhe como referencia.
 
 ~~~~markdown
-# Matrizes - Vetor intermediario Cw no risco do portfolio
+# Matriz de covariancia e risco de portfolio
 
-Este exercicio mostra como transformar uma matriz de covariancia e um vetor de pesos em um passo intermediario para calcular a variancia do portfolio.
+Objetivo final: calcular a volatilidade diaria e anualizada de um portfolio usando retornos de ativos, matriz de covariancia e pesos.
 
-## Pergunta do exercicio
+## Qual tipo de problema matriz de covariancia resolve
 
-Queremos saber quanto cada ativo contribui para o risco combinado antes de calcular a variancia final `w' C w`.
+Em quant, a matriz de covariancia resolve o problema de medir risco conjunto entre ativos. Ela nao olha apenas se cada ativo e volatil sozinho; ela mede tambem se os ativos tendem a cair juntos, subir juntos ou se compensar.
 
-## Dados de partida
+Exemplo pratico: se dois ativos caem juntos em dias ruins, eles aumentam o risco do portfolio. Se um ativo tende a subir quando outro cai, ele pode ajudar na diversificacao.
+
+## glossario
+
+- `returns`: matriz de retornos diarios; linhas sao dias, colunas sao ativos.
+- `weights`: pesos do portfolio.
+- `centered`: retornos depois de subtrair a media de cada ativo.
+- `covariance`: matriz que mede como os ativos se movem juntos.
+- `Cw`: vetor intermediario que aplica os pesos na matriz de covariancia.
+- `portfolio_variance`: variancia diaria do portfolio.
+- `daily_vol`: volatilidade diaria.
+- `annual_vol`: volatilidade anualizada.
+
+## dados de partida
 
 ```text
-C = [
-    [0.000100, 0.000040],
-    [0.000040, 0.000090],
+returns = [
+    [ 0.010,  0.004, -0.002],
+    [ 0.006,  0.002,  0.001],
+    [-0.012, -0.006,  0.003],
+    [ 0.015,  0.008, -0.004],
+    [-0.004, -0.001,  0.002],
+    [ 0.009,  0.005, -0.001],
 ]
 
-w = [0.60, 0.40]
+weights = [0.50, 0.30, 0.20]
+periods_per_year = 252
 ```
 
-`C` e a matriz de covariancia dos ativos.
-
-`w` e o vetor de pesos do portfolio.
-
-## 1. Vetor intermediario Cw
-
-O vetor `Cw` serve para aplicar os pesos do portfolio na matriz de covariancia e preparar o calculo final da variancia `w' C w`.
-
-Funcao no codigo:
+## dados de resultado
 
 ```text
-matvec(C, w)
+means = [0.004000, 0.002000, -0.000167]
+Cw = [0.000060, 0.000029, -0.000015]
+portfolio_variance = 0.000036
+daily_vol = 0.006008
+annual_vol = 0.095367
 ```
 
-Formula:
+## tipagem das funcoes py e c++
 
-```text
-Cw[0] = C[0][0] * w[0] + C[0][1] * w[1]
-Cw[1] = C[1][0] * w[0] + C[1][1] * w[1]
-```
-
-Calculo manual:
-
-```text
-Cw[0] = 0.000100 * 0.60 + 0.000040 * 0.40
-Cw[0] = 0.000060 + 0.000016
-Cw[0] = 0.000076
-
-Cw[1] = 0.000040 * 0.60 + 0.000090 * 0.40
-Cw[1] = 0.000024 + 0.000036
-Cw[1] = 0.000060
-```
-
-Resultado:
-
-```text
-Cw = [0.000076, 0.000060]
-```
-
-Interpretacao:
-
-```text
-Cw[0] mostra como o ativo 0 se relaciona com o risco do portfolio ponderado.
-Cw[1] mostra como o ativo 1 se relaciona com o risco do portfolio ponderado.
-```
-
-## 2. Variancia do portfolio
-
-A variancia do portfolio transforma `Cw` em um unico numero de risco usando novamente os pesos `w`.
-
-Funcao no codigo:
-
-```text
-dot(w, Cw)
-```
-
-Formula:
-
-```text
-portfolio_variance = w[0] * Cw[0] + w[1] * Cw[1]
-```
-
-Calculo manual:
-
-```text
-portfolio_variance = 0.60 * 0.000076 + 0.40 * 0.000060
-portfolio_variance = 0.0000456 + 0.0000240
-portfolio_variance = 0.0000696
-```
-
-Resultado:
-
-```text
-portfolio_variance = 0.0000696
-```
-
-Interpretacao:
-
-```text
-Esse numero e a variancia diaria do portfolio considerando o risco individual dos ativos e a covariancia entre eles.
-```
-
-## O que implementar em Python
+Python:
 
 ```python
-def matvec(matrix: list[list[float]], vector: list[float]) -> list[float]:
-    ...
-
-def dot(u: list[float], v: list[float]) -> float:
-    ...
+def column_means(matrix: list[list[float]]) -> list[float]: ...
+def center_matrix(matrix: list[list[float]], means: list[float]) -> list[list[float]]: ...
+def transpose(matrix: list[list[float]]) -> list[list[float]]: ...
+def matmul(a: list[list[float]], b: list[list[float]]) -> list[list[float]]: ...
+def matvec(matrix: list[list[float]], vector: list[float]) -> list[float]: ...
+def dot(u: list[float], v: list[float]) -> float: ...
 ```
 
-## O que implementar em C++
+C++:
 
 ```cpp
 using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
 
+Vector column_means(const Matrix& matrix);
+Matrix center_matrix(const Matrix& matrix, const Vector& means);
+Matrix transpose(const Matrix& matrix);
+Matrix matmul(const Matrix& a, const Matrix& b);
 Vector matvec(const Matrix& matrix, const Vector& vector);
 double dot(const Vector& u, const Vector& v);
 ```
 
-## Resultado de referencia
+## Referencias + termos para pesquisar
 
-```text
-Cw = [0.000076, 0.000060]
-portfolio_variance = 0.0000696
-```
+Termos:
 
-## Como saber se voce entendeu
+- matriz de covariancia risco de portfolio
+- covariancia amostral
+- variancia de portfolio
+- covariance matrix portfolio risk
+- sample covariance
+- portfolio variance
+- quadratic form
+- linear algebra matrix multiplication
 
-1. Por que `Cw` ainda nao e a variancia final?
-2. Por que os pesos aparecem duas vezes em `w' C w`?
-3. O que aconteceria com a variancia se a covariancia entre os ativos fosse negativa?
-~~~~
+Referencias:
 
-## Template rapido
-
-~~~~markdown
-# [Item] - [Nome concreto do exercicio]
-
-Semana X: [Tema].
-
-## Contexto
-
-[Explique o assunto e por que ele importa.]
-
-## Pergunta do exercicio
-
-[Pergunta pratica que o codigo vai responder.]
-
-## Traducao para linguagem quant
-
-- `termo`: explicacao curta.
-
-## Dados de partida
-
-```text
-[dados pequenos e fechados]
-```
-
-## Objetivo final
-
-1. [calculo/produto]
-2. [calculo/produto]
-
-## Formulas que voce vai usar
-
-### [Formula]
-
-```text
-[expressao]
-```
-
-Interpretacao: [explicacao].
-
-## O que implementar em Python
-
-1. [passo especifico]
-2. [passo especifico]
-
-## O que implementar em C++
-
-1. [passo especifico]
-2. [passo especifico]
-
-## Resultado de referencia
-
-```text
-[valor] = [numero aproximado]
-```
-
-## Como saber se voce entendeu
-
-1. [pergunta conceitual]
-2. [pergunta conceitual]
-
-## Termos para pesquisar
-
-Portugues:
-
-- [termo]
-
-Ingles:
-
-- [term]
-
-## Referencias
-
-- [Nome](https://exemplo.com)
+- MIT 18.065 Matrix Methods in Data Analysis, Signal Processing, and Machine Learning
+- Stanford CS229 Linear Algebra Review
+- Bodie, Kane & Marcus - Investments
 
 ## Como rodar
 
+Execucao normal:
+
 ```powershell
 python .\python\main.py
-g++ -std=c++20 -O2 -Wall -Wextra .\cpp\main.cpp -o .\cpp\main.exe
+g++ -std=c++23 -O2 -Wall -Wextra .\cpp\main.cpp -o .\cpp\main.exe
 .\cpp\main.exe
 ```
 
-## Entregavel
+Testes:
 
-[O que preencher no notes.md.]
+```powershell
+python -m unittest discover -s .\python\tests
+g++ -std=c++23 -O2 -Wall -Wextra .\cpp\tests.cpp -o .\cpp\tests.exe
+.\cpp\tests.exe
+```
+
+Os testes devem chamar as funcoes diretamente e validar pelo menos:
+
+- resultado esperado para os dados de partida;
+- `dot` multiplicando posicao com posicao;
+- `dot(u, v) == dot(v, u)`;
+- `transpose(transpose(A)) == A`;
+- matriz de covariancia simetrica;
+- variancia de portfolio calculada manualmente;
+- volatilidade diaria e anualizada pela raiz quadrada correta.
+
+## **Como saber se voce entendeu**
+
+1. Por que precisamos centralizar os retornos antes da covariancia?
+2. O que significa covariancia positiva?
+3. Por que `Cw` vem antes de calcular a variancia final?
+4. Por que anualizamos volatilidade usando `sqrt(252)`?
+
+### step 1
+
+A media de retorno de cada ativo serve para descobrir o retorno medio diario de cada coluna antes de medir desvios e risco.
+
+Matematica em alto nivel:
+
+```text
+media do ativo = soma dos retornos daquele ativo / quantidade de dias
+```
+
+#### step 1.1
+
+A funcao deve percorrer cada coluna da matriz `returns`, somar os valores e dividir por `n`.
+
+```text
+mean[j] = soma returns[i][j] para todos os dias i / n
+```
+
+Funcao relacionada:
+
+```text
+column_means(returns)
+```
+
+### step 2
+
+A matriz centralizada mostra quanto cada retorno ficou acima ou abaixo da media do proprio ativo.
+
+Matematica em alto nivel:
+
+```text
+retorno centralizado = retorno do dia - media do ativo
+```
+
+#### step 2.1
+
+A funcao deve criar uma nova matriz com a mesma dimensao de `returns`, sem reutilizar linhas compartilhadas.
+
+```text
+centered[i][j] = returns[i][j] - means[j]
+```
+
+Funcao relacionada:
+
+```text
+center_matrix(returns, means)
+```
+
+### step 3
+
+A matriz de covariancia resume como os ativos se movem juntos e prepara o calculo do risco do portfolio.
+
+Matematica em alto nivel:
+
+```text
+C = Xc' Xc / (n - 1)
+```
+
+#### step 3.1
+
+A funcao deve transpor a matriz centralizada para permitir a multiplicacao `Xc' Xc`.
+
+```text
+Xc' tem formato ativos x dias
+Xc  tem formato dias x ativos
+```
+
+Funcao relacionada:
+
+```text
+transpose(centered)
+```
+
+#### step 3.2
+
+A funcao deve multiplicar a matriz transposta pela matriz centralizada e dividir cada celula por `n - 1`.
+
+```text
+covariance[a][b] = soma centered[i][a] * centered[i][b] para todos os dias i / (n - 1)
+```
+
+Funcoes relacionadas:
+
+```text
+matmul(transpose(centered), centered)
+covariance_matrix(centered)
+```
+
+### step 4
+
+O vetor `Cw` aplica os pesos do portfolio na matriz de covariancia antes da variancia final.
+
+Matematica em alto nivel:
+
+```text
+Cw = C * w
+```
+
+#### step 4.1
+
+A funcao deve multiplicar cada linha da matriz de covariancia pelo vetor de pesos.
+
+```text
+cw[i] = covariance[i][0] * weights[0] + covariance[i][1] * weights[1] + covariance[i][2] * weights[2]
+```
+
+Funcao relacionada:
+
+```text
+matvec(covariance, weights)
+```
+
+### step 5
+
+A variancia diaria do portfolio transforma `Cw` em um unico numero de risco usando novamente os pesos.
+
+Matematica em alto nivel:
+
+```text
+portfolio_variance = w' C w
+portfolio_variance = dot(weights, Cw)
+```
+
+#### step 5.1
+
+A funcao deve multiplicar os vetores posicao com posicao, nao todos contra todos.
+
+```text
+portfolio_variance = weights[0] * cw[0] + weights[1] * cw[1] + weights[2] * cw[2]
+```
+
+Funcao relacionada:
+
+```text
+dot(weights, cw)
+```
+
+### step 6
+
+A volatilidade transforma variancia em uma medida de risco na mesma escala dos retornos.
+
+Matematica em alto nivel:
+
+```text
+daily_vol = sqrt(portfolio_variance)
+annual_vol = daily_vol * sqrt(periods_per_year)
+```
+
+#### step 6.1
+
+A funcao deve aplicar raiz quadrada na variancia diaria e depois anualizar pelo numero de periodos.
+
+Funcoes relacionadas:
+
+```text
+sqrt(portfolio_variance)
+sqrt(periods_per_year)
+```
 ~~~~
