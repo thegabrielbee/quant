@@ -1358,6 +1358,30 @@ g++ -std=c++23 -O2 -Wall -Wextra .\cpp\main.cpp -o .\cpp\main.exe
 .\cpp\main.exe
 ```
 
+## Animacoes
+
+As animacoes do exercicio ficam em `animations/scenes.py` e usam Manim Community Edition.
+
+Cada funcao/operacao exibida fica em tela por pelo menos 5 segundos para dar tempo de ler a formula, a funcao do codigo e o impacto nos valores.
+
+Gerar voz local/offline:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\animations\generate_voice.ps1
+```
+
+Render do video completo com narracao em qualidade media:
+
+```powershell
+python -m manim -qm --media_dir .\animations\media .\animations\scenes.py FullExerciseScene
+```
+
+Video final:
+
+```text
+animations/media/videos/scenes/720p30/FullExerciseScene.mp4
+```
+
 ## Entregavel
 
 Preencha `notes.md` respondendo:

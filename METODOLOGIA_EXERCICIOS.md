@@ -254,6 +254,152 @@ cpp/tests.cpp
 
 Se o exercicio for muito pequeno, os testes de C++ podem ficar em `cpp/main_test.cpp`, mas ainda precisam ser separados do fluxo principal de execucao.
 
+## Regras obrigatorias de animacoes e videos
+
+Todo exercicio com codigo precisa vir com animacoes geradas pelo proprio agente.
+
+O agente nao deve apenas sugerir que o estudante faca o video depois. O agente deve criar o codigo das animacoes, renderizar o video final e deixar o artefato pronto para assistir.
+
+Biblioteca padrao:
+
+```text
+Manim Community Edition
+```
+
+Estrutura obrigatoria:
+
+```text
+animations/
+  scenes.py
+  README.md
+  roteiro.md
+  generate_voice.ps1
+```
+
+O arquivo `animations/scenes.py` deve conter:
+
+- uma cena completa do exercicio, chamada `FullExerciseScene`;
+- cenas ou segmentos para cada step/função matemática relevante;
+- visualizacao dos dados de entrada;
+- visualizacao da formula matematica;
+- visualizacao da funcao do codigo que implementa a formula;
+- animacao dos valores mudando ate chegar no resultado;
+- interpretacao curta do que o valor significa em quant.
+
+Cada funcao importante do exercicio deve ter uma explicacao animada.
+
+Cada funcao, step ou operacao matematica exibida no video deve permanecer em tela por tempo suficiente para leitura.
+
+Regra de tempo minimo:
+
+```text
+Cada funcao/operação animada deve durar pelo menos 5 segundos do inicio ao fim.
+```
+
+Esse tempo inclui:
+
+- entrada visual do bloco;
+- formula matematica;
+- nome da funcao do codigo;
+- transformacao dos valores;
+- resultado final;
+- pausa para leitura.
+
+Nao compacte varios steps em poucos segundos. Se o usuario precisa pausar para entender, a animacao esta rapida demais.
+
+Exemplo:
+
+```text
+column_means      -> anima soma das colunas e divisao por n
+center_matrix     -> anima retorno menos media de cada ativo
+transpose         -> anima linhas virando colunas
+matmul            -> anima produto linha x coluna
+matvec            -> anima C * w
+dot               -> anima multiplicacao posicao com posicao
+annual_volatility -> anima daily_vol * sqrt(periods_per_year)
+```
+
+Regra de fonte de verdade:
+
+```text
+A animacao deve usar os mesmos dados, formulas e nomes de funcoes do README e do codigo.
+```
+
+Nao crie uma matematica paralela so para o video. Se a cena precisar calcular valores, ela deve reutilizar as funcoes do exercicio quando isso for pratico, ou repetir apenas contas pequenas explicitamente mostradas na propria animacao.
+
+Regra contra wrappers:
+
+```text
+Nao crie funcao wrapper so para animar outra funcao simples.
+```
+
+Helpers visuais sao permitidos:
+
+```text
+make_matrix_table(...)
+highlight_cell(...)
+show_formula_step(...)
+```
+
+Wrappers matematicos redundantes nao sao permitidos:
+
+```text
+animated_dot(u, v) chamando apenas dot(u, v)
+```
+
+O agente deve renderizar pelo menos:
+
+```text
+FullExerciseScene
+```
+
+Qualidade padrao para entrega:
+
+```text
+-qm
+```
+
+Nao mantenha duas versoes do mesmo video como entrega. O artefato final deve ser apenas o render em `720p30`, salvo pelo Manim quando usado `-qm`.
+
+O README do exercicio deve informar onde o video final foi gerado.
+
+## Regras obrigatorias de roteiro e voz
+
+Todo video deve ter um roteiro de narracao gerado pelo agente.
+
+Estrutura obrigatoria:
+
+```text
+animations/roteiro.md
+animations/generate_voice.ps1
+```
+
+O roteiro deve ter um bloco de narracao para:
+
+- introducao;
+- cada funcao/operacao matematica importante;
+- conclusao.
+
+Por padrao, a voz deve ser gerada sem custo por ferramenta local/offline quando houver uma voz disponivel no sistema.
+
+No Windows, use a voz local SAPI quando estiver disponivel, por exemplo:
+
+```text
+Microsoft Maria Desktop pt-BR
+```
+
+O agente deve:
+
+- gerar o roteiro;
+- gerar os arquivos de voz;
+- encaixar a voz na cena Manim;
+- renderizar o MP4 final ja com audio;
+- ajustar o tempo do video para a narracao nao ficar cortada.
+
+Nao use API paga por padrao para narracao. So use API externa se o usuario pedir explicitamente.
+
+Se a maquina nao tiver voz local disponivel, registre o bloqueio e deixe o roteiro pronto.
+
 ## Estrutura recomendada do README
 
 Use esta ordem como padrao unico para novos READMEs de exercicio.
@@ -342,7 +488,7 @@ Use:
 ## Como rodar
 ```
 
-Inclua comandos concretos para rodar Python, C++ e os testes das duas linguagens.
+Inclua comandos concretos para rodar Python, C++, testes das duas linguagens e render das animacoes.
 
 Os comandos de teste sao obrigatorios. O README precisa deixar claro como validar:
 
@@ -350,6 +496,14 @@ Os comandos de teste sao obrigatorios. O README precisa deixar claro como valida
 - testes das funcoes Python;
 - testes das funcoes C++;
 - quais propriedades matematicas os testes cobrem.
+
+Os comandos de animacao tambem sao obrigatorios. O README precisa deixar claro:
+
+- como gerar a voz local/offline;
+- qual cena renderiza o video completo;
+- quais cenas renderizam funcoes especificas, se existirem;
+- onde o arquivo `.mp4` final fica salvo;
+- se o render foi feito em baixa, media ou alta qualidade.
 
 ### 9. Como saber se voce entendeu
 
@@ -438,6 +592,16 @@ Antes de considerar o exercicio pronto, confira:
 - existem testes para C++ quando houver codigo C++;
 - os testes chamam funcoes diretamente, nao apenas comparam o print final;
 - os testes cobrem propriedades matematicas, nao apenas os dados de input do README;
+- existe pasta `animations/` quando houver codigo;
+- existe `animations/scenes.py`;
+- existe `animations/roteiro.md`;
+- existe script para gerar voz local/offline quando houver voz disponivel;
+- existe cena `FullExerciseScene`;
+- cada funcao matematica relevante aparece no video completo ou em uma cena propria;
+- as animacoes mostram formula matematica, funcao do codigo, mudanca nos valores e interpretacao quant;
+- cada funcao, step ou operacao exibida no video dura pelo menos 5 segundos;
+- a narracao acompanha o que aparece na tela e nao e cortada antes do fim do audio;
+- o agente renderizou o video final ou registrou claramente o bloqueio tecnico;
 - existem resultados de referencia;
 - existem perguntas para testar entendimento;
 - existem termos de busca em PT e EN;
@@ -460,6 +624,14 @@ Evite frases como:
 - manter no codigo uma funcao wrapper que so repassa para outra funcao simples.
 - entregar codigo sem testes.
 - testar apenas o exemplo principal do README sem validar propriedades matematicas das funcoes.
+- entregar exercicio com codigo sem animacao.
+- criar apenas script de animacao sem renderizar o video final.
+- fazer video que mostra formula, mas nao mostra a funcao do codigo correspondente.
+- fazer video que mostra codigo, mas nao mostra o impacto nos valores.
+- criar matematica paralela no video que diverge do README ou do codigo.
+- entregar video sem roteiro de narracao.
+- usar API paga para voz sem pedido explicito do usuario.
+- renderizar video com audio cortado ou fora de sincronia com o step.
 
 Troque por instrucoes fechadas:
 
@@ -467,6 +639,9 @@ Troque por instrucoes fechadas:
 - quais funcoes criar;
 - quais metricas calcular;
 - quais valores esperar;
+- quais cenas renderizar;
+- onde fica o video final;
+- como gerar a voz local/offline;
 - qual conclusao escrever.
 
 ## Exemplo unico de referencia
@@ -594,6 +769,29 @@ Os testes devem chamar as funcoes diretamente e validar pelo menos:
 - matriz de covariancia simetrica;
 - variancia de portfolio calculada manualmente;
 - volatilidade diaria e anualizada pela raiz quadrada correta.
+
+Animacoes:
+
+```powershell
+python -m pip install manim
+powershell -ExecutionPolicy Bypass -File .\animations\generate_voice.ps1
+manim -qm --media_dir .\animations\media .\animations\scenes.py FullExerciseScene
+```
+
+Video final:
+
+```text
+animations/media/videos/scenes/720p30/FullExerciseScene.mp4
+```
+
+O `FullExerciseScene` deve mostrar:
+
+- dados de partida;
+- formula matematica de cada step;
+- funcao do codigo relacionada;
+- transformacao visual dos valores;
+- resultado de cada step;
+- interpretacao quant do resultado.
 
 ## **Como saber se voce entendeu**
 
