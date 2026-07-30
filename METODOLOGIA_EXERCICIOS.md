@@ -473,9 +473,22 @@ O roteiro deve ter um bloco de narracao para:
 - cada funcao/operacao matematica importante;
 - conclusao.
 
-Por padrao, a voz deve ser gerada sem custo por ferramenta local/offline quando houver uma voz disponivel no sistema.
+Por padrao, a voz deve ser gerada sem custo. A primeira opcao recomendada e `edge-tts`, usando voz neural em portugues brasileiro quando houver internet.
 
-No Windows, use a voz local SAPI quando estiver disponivel, por exemplo:
+Voz neural recomendada:
+
+```text
+pt-BR-FranciscaNeural
+```
+
+Comando base:
+
+```powershell
+python -m pip install edge-tts mutagen
+edge-tts --voice pt-BR-FranciscaNeural --text "texto da narracao" --write-media audio.mp3
+```
+
+Se `edge-tts` falhar ou a maquina estiver offline, use fallback local/offline. No Windows, use a voz local SAPI quando estiver disponivel, por exemplo:
 
 ```text
 Microsoft Maria Desktop pt-BR
@@ -489,7 +502,7 @@ O agente deve:
 - renderizar o MP4 final ja com audio;
 - ajustar o tempo do video para a narracao nao ficar cortada.
 
-Nao use API paga por padrao para narracao. So use API externa se o usuario pedir explicitamente.
+Nao use API paga por padrao para narracao. `edge-tts` e aceitavel como opcao gratis online; se o usuario exigir offline, use SAPI ou Piper.
 
 Se a maquina nao tiver voz local disponivel, registre o bloqueio e deixe o roteiro pronto.
 

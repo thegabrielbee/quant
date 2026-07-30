@@ -214,10 +214,13 @@ Os testes devem chamar as funcoes diretamente e validar pelo menos:
 Animacoes e voz:
 
 ```powershell
-python -m pip install manim
+python -m pip install manim edge-tts mutagen
 powershell -ExecutionPolicy Bypass -File .\animations\generate_voice.ps1
 python -m manim -qm --media_dir .\animations\media .\animations\scenes.py FullExerciseScene
 ```
+
+O script de voz deve tentar primeiro `edge-tts` com a voz neural gratuita `pt-BR-FranciscaNeural`.
+Se `edge-tts` falhar ou a maquina estiver offline, use fallback local com SAPI do Windows.
 
 Video final:
 
