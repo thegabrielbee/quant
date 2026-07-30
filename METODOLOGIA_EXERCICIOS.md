@@ -174,6 +174,32 @@ Nesse caso, se o step ja calculou `cw`, a chamada direta e mais clara:
 portfolio_variance = dot(weights, cw)
 ```
 
+Outro exemplo ruim:
+
+```python
+def daily_volatility(portfolio_variance: float) -> float:
+    return sqrt(portfolio_variance)
+```
+
+Nesse caso, a conta direta e mais clara porque a funcao apenas embrulha `sqrt`:
+
+```python
+daily_vol = sqrt(portfolio_variance)
+```
+
+Outro exemplo ruim:
+
+```python
+def annualized_volatility(daily_vol: float, periods_per_year: int) -> float:
+    return daily_vol * sqrt(periods_per_year)
+```
+
+Nesse caso, a conta direta e mais clara porque a funcao apenas embrulha uma multiplicacao simples:
+
+```python
+annual_vol = daily_vol * sqrt(periods_per_year)
+```
+
 Exemplo aceitavel:
 
 ```python
@@ -196,13 +222,78 @@ Se a funcao apenas renomeia uma chamada simples, nao crie a funcao.
 Se a funcao combina passos, valida dados ou representa uma unidade conceitual importante, ela pode existir.
 ```
 
+## Regras para criar tipos
+
+Crie tipos novos somente quando eles carregarem uma regra de dominio, uma validacao ou uma semantica que o tipo nativo nao mostra sozinho.
+
+Regra principal:
+
+```text
+Nao crie tipo redundante quando ele for apenas um wrapper de um tipo simples ja existente.
+```
+
+Isso vale para:
+
+- aliases em C++, como `using Vector = std::vector<double>`;
+- aliases em Python, como `Vector = list[float]`;
+- `struct`, `class`, `dataclass` ou `NewType` que so guardam um valor sem validar nada;
+- tipos auxiliares como `Shape` quando `std::pair<std::size_t, std::size_t>` ou `tuple[int, int]` ja deixam o contrato claro no exercicio.
+
+Um tipo e redundante quando:
+
+- so renomeia `list`, `tuple`, `std::vector`, `std::pair` ou outro container comum;
+- nao valida invariantes;
+- nao adiciona comportamento proprio;
+- nao deixa uma regra de dominio mais clara;
+- so existe para encurtar assinatura em um exercicio pequeno.
+
+Exemplo ruim:
+
+```cpp
+using Vector = std::vector<double>;
+using Matrix = std::vector<std::vector<double>>;
+using Shape = std::pair<std::size_t, std::size_t>;
+```
+
+Nesse caso, use os tipos diretamente nas assinaturas:
+
+```cpp
+std::vector<double> column_means(const std::vector<std::vector<double>>& matrix);
+std::pair<std::size_t, std::size_t> matrix_shape(const std::vector<std::vector<double>>& matrix);
+```
+
+Exemplo aceitavel:
+
+```cpp
+struct PortfolioWeights {
+    std::vector<double> values;
+};
+```
+
+Esse tipo so e aceitavel se a implementacao validar uma regra real, por exemplo soma dos pesos, tamanho esperado ou ausencia de pesos negativos quando o exercicio exigir isso.
+
+Regra de decisao:
+
+```text
+Se o tipo apenas renomeia outro tipo, nao crie o tipo.
+Se o tipo valida invariantes, protege uma regra de dominio ou reduz complexidade real em um codigo maior, ele pode existir.
+```
+
 ## Regras obrigatorias de testes
 
-Todo exercicio com codigo precisa vir com testes para validar as funcoes implementadas.
+Todo exercicio com codigo precisa vir com arquivos de teste prontos para validar as funcoes implementadas.
+
+Nao basta escrever no README quais testes deveriam existir. O agente deve criar os arquivos de teste do exercicio junto com o codigo.
+
+Regra principal:
+
+```text
+Teste nao e TODO. Teste e arquivo pronto.
+```
 
 Os testes nao podem validar apenas o dataset principal do README. Eles precisam validar tambem o funcionamento matematico das funcoes.
 
-Regra principal:
+Regra de cobertura:
 
 ```text
 Teste dado de referencia e teste propriedades matematicas.
@@ -253,6 +344,8 @@ cpp/tests.cpp
 ```
 
 Se o exercicio for muito pequeno, os testes de C++ podem ficar em `cpp/main_test.cpp`, mas ainda precisam ser separados do fluxo principal de execucao.
+
+Os testes devem estar completos para rodar desde a primeira entrega do exercicio. Se o arquivo principal for starter incompleto, os testes podem falhar ate o estudante implementar, mas nao podem estar ausentes, vazios ou descritos apenas em texto.
 
 ## Regras obrigatorias de animacoes e videos
 
@@ -316,7 +409,7 @@ transpose         -> anima linhas virando colunas
 matmul            -> anima produto linha x coluna
 matvec            -> anima C * w
 dot               -> anima multiplicacao posicao com posicao
-annual_volatility -> anima daily_vol * sqrt(periods_per_year)
+annualizacao      -> anima daily_vol * sqrt(periods_per_year)
 ```
 
 Regra de fonte de verdade:
@@ -522,20 +615,46 @@ Depois das secoes principais, crie os steps do exercicio.
 Cada step principal deve seguir:
 
 ```text
-### step 1
-descricao enxuta do topico
+### step X
+explicacao geral do topico
 matematica em alto nivel do topico
+interpretacao geral do que este topico entrega
 
-#### step 1.1
-matematica em alto nivel do topico + relacao com o codigo
+#### step X.Y
+calculo de uma unica operacao especifica deste topico
+formula matematica exata deste substep
+chamada, funcao ou trecho do codigo que executa essa conta
+resultado esperado deste substep, quando houver
 ```
 
 Regra:
 
-- o step principal explica o que o passo faz;
-- o step principal mostra a matematica em alto nivel;
-- os substeps conectam a matematica com as funcoes que devem ser implementadas;
-- os nomes das funcoes precisam aparecer nos substeps, nao escondidos no final.
+- o step principal `step X` explica o que o topico faz, por que ele existe e como ele se conecta com o resultado final;
+- explicacoes gerais, intuicao, contexto quant e interpretacao ficam no `step X`;
+- cada substep `step X.Y` deve ser o calculo de uma unica operacao especifica;
+- cada substep `step X.Y` deve ter formula matematica e relacao direta com o codigo;
+- a relacao com codigo precisa citar a funcao, chamada ou linha conceitual que executa a conta;
+- os nomes das funcoes precisam aparecer dentro dos substeps, nao escondidos no final;
+- se um topico tiver mais de uma operacao, separe em mais de um substep.
+
+Exemplo: matriz de covariancia nao deve ter um substep generico dizendo apenas "calcule a covariancia". Ela deve separar as contas:
+
+```text
+#### step X.1
+centered_t = transpose(centered)
+
+#### step X.2
+M = matmul(centered_t, centered)
+
+#### step X.3
+covariance[a][b] = M[a][b] / (n - 1)
+```
+
+Anti-regra:
+
+```text
+Substep X.Y que so explica conceito, sem formula e sem relacao com codigo, esta errado.
+```
 
 ### Regras gerais dos dados
 
@@ -583,13 +702,20 @@ Antes de considerar o exercicio pronto, confira:
 - cada topico segue a ordem: titulo, explicacao com contexto pratico, subtopicos, formulas e ligacao com codigo;
 - cada step principal mostra a formula completa passo a passo, incluindo entrada, saida, substituicao numerica e resultado;
 - cada topico de formula/processo explica para que aquele passo serve antes de entrar na conta;
+- cada substep `step X.Y` calcula uma unica operacao especifica;
+- cada substep `step X.Y` tem formula matematica e relacao direta com funcao, chamada ou trecho do codigo;
+- explicacoes gerais ficam no `step X`, nao nos substeps `step X.Y`;
 - cada formula/exemplo aponta para a funcao correspondente no codigo;
 - os passos de Python e C++ tem funcoes especificas;
 - as funcoes sugeridas nao sao wrappers redundantes de chamadas simples ja existentes;
 - nenhuma funcao do codigo existe apenas para chamar outra funcao simples;
+- os tipos sugeridos nao sao aliases ou wrappers redundantes de tipos simples ja existentes;
+- nenhum tipo do codigo existe apenas para renomear `list`, `tuple`, `std::vector`, `std::pair` ou outro container comum;
 - os starters mostram assinaturas/declaracoes de funcoes, mas nao entregam a implementacao;
 - existem testes para Python quando houver codigo Python;
 - existem testes para C++ quando houver codigo C++;
+- os arquivos de teste foram criados de verdade, nao apenas descritos no README;
+- os arquivos de teste tem asserts/verificacoes prontas para rodar;
 - os testes chamam funcoes diretamente, nao apenas comparam o print final;
 - os testes cobrem propriedades matematicas, nao apenas os dados de input do README;
 - existe pasta `animations/` quando houver codigo;
@@ -620,9 +746,15 @@ Evite frases como:
 - entregar o corpo da funcao no starter quando o objetivo e treinar implementacao.
 - explicar uma formula sem dizer qual funcao do codigo implementa aquela formula.
 - comecar um topico direto pela formula sem explicar para que aquele passo serve no calculo final.
+- criar substep `step X.Y` que so explica o conceito, sem calculo especifico, sem formula matematica e sem relacao com codigo.
+- juntar duas operacoes diferentes no mesmo substep, como `matmul` e divisao por `n - 1`, quando elas podem ser validadas separadamente.
 - criar funcao que apenas chama outra funcao simples, sem validacao, composicao ou ganho real de clareza.
 - manter no codigo uma funcao wrapper que so repassa para outra funcao simples.
+- criar tipo, alias, struct, class ou dataclass que apenas embrulha um tipo nativo sem validacao ou ganho semantico real.
+- usar `Vector`, `Matrix` ou `Shape` em exercicio pequeno quando `std::vector<double>`, `std::vector<std::vector<double>>` ou `std::pair<std::size_t, std::size_t>` deixam o contrato claro.
 - entregar codigo sem testes.
+- dizer no README quais testes fazer, mas nao criar `python/tests/test_main.py` e `cpp/tests.cpp`.
+- criar arquivo de teste vazio ou com placeholders como "TODO".
 - testar apenas o exemplo principal do README sem validar propriedades matematicas das funcoes.
 - entregar exercicio com codigo sem animacao.
 - criar apenas script de animacao sem renderizar o video final.
@@ -712,15 +844,21 @@ def dot(u: list[float], v: list[float]) -> float: ...
 C++:
 
 ```cpp
-using Vector = std::vector<double>;
-using Matrix = std::vector<Vector>;
-
-Vector column_means(const Matrix& matrix);
-Matrix center_matrix(const Matrix& matrix, const Vector& means);
-Matrix transpose(const Matrix& matrix);
-Matrix matmul(const Matrix& a, const Matrix& b);
-Vector matvec(const Matrix& matrix, const Vector& vector);
-double dot(const Vector& u, const Vector& v);
+std::vector<double> column_means(const std::vector<std::vector<double>>& matrix);
+std::vector<std::vector<double>> center_matrix(
+    const std::vector<std::vector<double>>& matrix,
+    const std::vector<double>& means
+);
+std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>>& matrix);
+std::vector<std::vector<double>> matmul(
+    const std::vector<std::vector<double>>& a,
+    const std::vector<std::vector<double>>& b
+);
+std::vector<double> matvec(
+    const std::vector<std::vector<double>>& matrix,
+    const std::vector<double>& vector
+);
+double dot(const std::vector<double>& u, const std::vector<double>& v);
 ```
 
 ## Referencias + termos para pesquisar
@@ -860,32 +998,84 @@ C = Xc' Xc / (n - 1)
 
 #### step 3.1
 
-A funcao deve transpor a matriz centralizada para permitir a multiplicacao `Xc' Xc`.
+Este substep calcula `centered_t`, a transposta da matriz centralizada que sera usada no produto `Xc' Xc`.
 
 ```text
-Xc' tem formato ativos x dias
-Xc  tem formato dias x ativos
+centered_t[j][i] = centered[i][j]
+
+centered   tem formato dias x ativos
+centered_t tem formato ativos x dias
 ```
 
-Funcao relacionada:
+Relacao no codigo:
 
 ```text
-transpose(centered)
+centered_t = transpose(centered)
 ```
 
 #### step 3.2
 
-A funcao deve multiplicar a matriz transposta pela matriz centralizada e dividir cada celula por `n - 1`.
+Este substep calcula `M`, o produto matricial entre a transposta centralizada e a matriz centralizada.
 
 ```text
-covariance[a][b] = soma centered[i][a] * centered[i][b] para todos os dias i / (n - 1)
+M = centered_t * centered
+
+M[a][b] =
+    soma centered_t[a][k] * centered[k][b]
+    para k percorrendo a dimensao compartilhada
 ```
 
-Funcoes relacionadas:
+Neste tipo de `matmul`, `k` e o indice da dimensao interna:
 
 ```text
-matmul(transpose(centered), centered)
-covariance_matrix(centered)
+centered_t tem formato ativos x dias
+centered   tem formato dias x ativos
+
+k percorre os dias.
+```
+
+Cuidado comum:
+
+```text
+No terceiro loop de `matmul`, k nao deve ir ate a.size().
+
+a.size()    = quantidade de linhas de a
+a[0].size() = quantidade de colunas de a
+b.size()    = quantidade de linhas de b
+
+Use k indo ate a[0].size(), que deve ser igual a b.size().
+```
+
+Relacao no codigo:
+
+```text
+M = matmul(centered_t, centered)
+
+for i in range(a.size()):
+    for j in range(b[0].size()):
+        for k in range(a[0].size()):
+            result[i][j] += a[i][k] * b[k][j]
+```
+
+#### step 3.3
+
+Este substep calcula `covariance`, dividindo cada celula de `M` por `n - 1` para obter covariancia amostral.
+
+```text
+covariance[a][b] = M[a][b] / (n - 1)
+```
+
+Relacao no codigo:
+
+```text
+covariance = covariance_matrix(centered)
+```
+
+Dentro de `covariance_matrix`, a operacao precisa ficar equivalente a:
+
+```text
+M = matmul(transpose(centered), centered)
+covariance[a][b] = M[a][b] / (len(centered) - 1)
 ```
 
 ### step 4

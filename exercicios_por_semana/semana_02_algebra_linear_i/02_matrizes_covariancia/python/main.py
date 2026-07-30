@@ -24,82 +24,103 @@ PERIODS_PER_YEAR = 252
 
 
 def column_means(matrix: list[list[float]]) -> list[float]:
-    m = [0]*len(matrix[0])
-    for i, l in enumerate(matrix):
-        for j, vl in enumerate(l):
-            m[j] += vl
+    validate_rectangular(matrix)
 
-    m = [v/len(matrix) for v in m] 
+    m = [0.0] * len(matrix[0])
+    for row in matrix:
+        for j, value in enumerate(row):
+            m[j] += value
+
+    m = [value / len(matrix) for value in m]
     return m
 
+
 def center_matrix(matrix: list[list[float]], means: list[float]) -> list[list[float]]:
-    c = [[[0] for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
-    for i, l in enumerate(matrix):
-        for j, vc in enumerate(l):
-            c[i][j] = vc - means[j]
-    return c
+    validate_rectangular(matrix)
+    if len(means) != len(matrix[0]):
+        raise ValueError("means must have one value for each matrix column")
+    return [
+        [value - means[j] for j, value in enumerate(row)]
+        for row in matrix
+    ]
+
 
 def transpose(matrix: list[list[float]]) -> list[list[float]]:
-    t = [[0 for _ in range(len(matrix))] for _ in range(len(matrix[0]))]
+    validate_rectangular(matrix)
+    t = [[0.0 for _ in range(len(matrix))] for _ in range(len(matrix[0]))]
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             t[j][i] = matrix[i][j]
     return t
 
+
 def matrix_shape(matrix: list[list[float]]) -> tuple[int, int]:
-    raise NotImplementedError
+    validate_rectangular(matrix)
+    return len(matrix), len(matrix[0])
 
 
 def validate_rectangular(matrix: list[list[float]]) -> None:
-    raise NotImplementedError
+    if not matrix:
+        raise ValueError("matrix must not be empty")
+    if not matrix[0]:
+        raise ValueError("matrix rows must not be empty")
+
+    expected_cols = len(matrix[0])
+    for row in matrix:
+        if len(row) != expected_cols:
+            raise ValueError("matrix must be rectangular")
 
 
 def validate_matmul_dimensions(a: list[list[float]], b: list[list[float]]) -> None:
-    raise NotImplementedError
+    validate_rectangular(a)
+    validate_rectangular(b)
+    if len(a[0]) != len(b):
+        raise ValueError("a columns must match b rows")
 
 
 def matmul(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
-    m = [[0 for _ in range(len(b[0]))] for _ in range(len(a))]
+    validate_matmul_dimensions(a, b)
+    m = [[0.0 for _ in range(len(b[0]))] for _ in range(len(a))]
     for i in range(len(a)):
         for j in range(len(b[0])):
-            v = 0
+            v = 0.0
             for k in range(len(a[0])):
                 v += a[i][k] * b[k][j]
             m[i][j] = v
     return m
-    
+
 
 def matvec(matrix: list[list[float]], vector: list[float]) -> list[float]:
-    cw = [0 for _ in range(len(matrix[0]))]
+    validate_rectangular(matrix)
+    if len(matrix[0]) != len(vector):
+        raise ValueError("matrix columns must match vector length")
+
+    cw = [0.0 for _ in range(len(matrix))]
     for i in range(len(matrix)):
-        v = 0
+        v = 0.0
         for j in range(len(matrix[0])):
-            v += matrix[i][j]*vector[j]
+            v += matrix[i][j] * vector[j]
         cw[i] = v
     return cw
 
+
 def covariance_matrix(centered: list[list[float]]) -> list[list[float]]:
+    validate_rectangular(centered)
+    if len(centered) < 2:
+        raise ValueError("sample covariance needs at least two rows")
+
     m = matmul(transpose(centered), centered)
-    n = len(centered)-1
+    n = len(centered) - 1
     for i in range(len(m)):
         for j in range(len(m[0])):
-            m[i][j] = m[i][j] / n 
+            m[i][j] = m[i][j] / n
     return m
 
+
 def dot(u: list[float], v: list[float]) -> float:
+    if len(u) != len(v):
+        raise ValueError("vectors must have the same length")
     return sum(x * y for x, y in zip(u, v))
-
-
-def quadratic_form(weights: list[float], cw: list[float]) -> float:
-    return dot(weights, cw)
-
-
-def daily_volatility(portfolio_variance: float) -> float:
-    return sqrt(portfolio_variance)
-
-
-def annualized_volatility(daily_vol: float, periods_per_year: int) -> float:
-    return daily_vol * sqrt(periods_per_year)
 
 
 def print_vector(name: str, values: list[float]) -> None:
@@ -134,13 +155,13 @@ def run_exercise() -> dict[str, float]:
     cw = matvec(covariance, WEIGHTS)
 
     # 6. Variancia diaria do portfolio.
-    portfolio_variance = quadratic_form(WEIGHTS, cw)
+    portfolio_variance = dot(WEIGHTS, cw)
 
     # 7. Volatilidade diaria do portfolio.
-    daily_vol = daily_volatility(portfolio_variance)
+    daily_vol = sqrt(portfolio_variance)
 
     # 8. Volatilidade anualizada do portfolio.
-    annual_vol = annualized_volatility(daily_vol, PERIODS_PER_YEAR)
+    annual_vol = daily_vol * sqrt(PERIODS_PER_YEAR)
 
     # 9. Conclusao sobre diversificacao.
     conclusion = "preencha depois de analisar a matriz de covariancia"
